@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # 포토그램 - 인스타그램 클론 코딩
 
 ### STS 툴 버그가 발견되면 다른 버전으로 다운 받는 법
@@ -96,3 +97,7 @@ spring:
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 ```
+=======
+# instargram
+SNS 
+>>>>>>> origin/feature-minhee
