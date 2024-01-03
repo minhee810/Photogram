@@ -16,6 +16,7 @@ public class AuthService {
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
 
+    // 회원가입 기능
     @Transactional
     public User join(User user) {
 
@@ -23,7 +24,6 @@ public class AuthService {
         String encPassword = bCryptPasswordEncoder.encode(rawPassword);
         user.setPassword(encPassword);
         user.setRole("ROLE_USER");  // 관리자 -> ROLE_ADMIN
-
 
         User userEntity = userRepository.save(user);
         return userEntity;

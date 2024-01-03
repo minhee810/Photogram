@@ -8,8 +8,8 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-@AllArgsConstructor
 //@Builder
+@AllArgsConstructor
 @NoArgsConstructor
 @Data
 @Entity // db에 테이블을 생성
@@ -17,7 +17,7 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) // 번호증가 전략이 데이터베이스를 따라간다.
-    private int id;
+    private int id;  // 큰 사용자를 둘 것이 아니기 때문에 long 이 아닌 int 로 설정.
     @Column(length = 20, unique = true)
     private String username;
     @Column(nullable = false)
@@ -33,6 +33,7 @@ public class User {
     private String profileImageUrl;
     private String role; // 권한
     private LocalDateTime createDate;
+
     @PrePersist // db에 insert 되기 직전에 실행
     public void createDate(){
         this.createDate = LocalDateTime.now();
@@ -45,4 +46,6 @@ public class User {
         this.name = name;
         this.email = email;
     }
+
+
 }

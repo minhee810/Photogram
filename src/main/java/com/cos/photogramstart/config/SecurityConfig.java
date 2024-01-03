@@ -12,7 +12,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 public class SecurityConfig extends WebSecurityConfigurerAdapter {  // 상속
 
 
-    @Bean
+    @Bean // SecurityConfig 가 IoC 에 등록 될 때 같이 빈으로 등록되어 애플리케이션 실행 시 메모리에 떠 있게 됨.
     public BCryptPasswordEncoder encoder() {
         return new BCryptPasswordEncoder();
     }
