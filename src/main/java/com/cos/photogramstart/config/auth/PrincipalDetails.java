@@ -9,6 +9,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.ArrayList;
 import java.util.Collection;
 
+/**
+ * 사용자 세부 정보 클래스 UserDetails 구현
+ */
 @Data
 public class PrincipalDetails implements UserDetails {
 

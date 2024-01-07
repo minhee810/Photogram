@@ -1,0 +1,329 @@
+From e53d6d418e3b845faf7042e71a78ec4d1d5fd434 Mon Sep 17 00:00:00 2001
+From: minhee <minhee810@naver.com>
+Date: Mon, 8 Jan 2024 00:33:50 +0900
+Subject: [PATCH] =?UTF-8?q?[add]=20=ED=99=94=EB=A9=B4=20=EC=97=B0=EA=B2=B0?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ .../config/auth/PrincipalDetails.java         | 27 +++++++++++++------
+ .../config/auth/PrincipalDetailsService.java  |  6 +++++
+ .../cos/photogramstart/domain/user/User.java  |  6 +++++
+ .../handler/ControllerExceptionHandler.java   |  2 +-
+ .../com/cos/photogramstart/util/Script.java   |  2 +-
+ .../photogramstart/web/AuthController.java    |  1 +
+ .../photogramstart/web/ImageController.java   | 23 ++++++++++++++++
+ .../photogramstart/web/UserController.java    | 20 ++++++++++++++
+ .../cos/photogramstart/web/dto/CMRespDto.java |  2 +-
+ .../web/dto/auth/SignupDto.java               |  2 +-
+ src/main/webapp/WEB-INF/views/auth/signup.jsp |  2 +-
+ .../webapp/WEB-INF/views/layout/header.jsp    |  6 ++---
+ .../webapp/WEB-INF/views/user/profile.jsp     |  2 +-
+ 13 files changed, 84 insertions(+), 17 deletions(-)
+ create mode 100644 src/main/java/com/cos/photogramstart/web/ImageController.java
+ create mode 100644 src/main/java/com/cos/photogramstart/web/UserController.java
+
+diff --git a/src/main/java/com/cos/photogramstart/config/auth/PrincipalDetails.java b/src/main/java/com/cos/photogramstart/config/auth/PrincipalDetails.java
+index 3de0df6..d96e977 100644
+--- a/src/main/java/com/cos/photogramstart/config/auth/PrincipalDetails.java
++++ b/src/main/java/com/cos/photogramstart/config/auth/PrincipalDetails.java
+@@ -6,50 +6,61 @@ import org.springframework.format.annotation.DateTimeFormat;
+ import org.springframework.security.core.GrantedAuthority;
+ import org.springframework.security.core.userdetails.UserDetails;
+ 
++import java.util.ArrayList;
+ import java.util.Collection;
+ 
+ @Data
+ public class PrincipalDetails implements UserDetails {
+ 
+     private static final long serialVersionUID = 1L;
++
++    // 추가
+     private User user;
+ 
+-    public PrincipalDetails(User user){
++    public PrincipalDetails(User user) {
+         this.user = user;
+     }
+ 
++
++    // 권한 : 한 개가 아닐 수 있음 (3개 이상의 권한)
+     @Override
+     public Collection<? extends GrantedAuthority> getAuthorities() {
+-        return null;
++        Collection<GrantedAuthority> collector = new ArrayList<>();
++        collector.add(() -> {return user.getRole();});
++        return collector;
+     }
+ 
+     @Override
+     public String getPassword() {
+-        return null;
++        return user.getPassword();
+     }
+ 
+     @Override
+     public String getUsername() {
+-        return null;
++        return user.getUsername();
+     }
+ 
++
++    // 계정 만료 되었는지 확인하는 메서드
+     @Override
+     public boolean isAccountNonExpired() {
+-        return false;
++        return true;
+     }
+ 
+     @Override
+     public boolean isAccountNonLocked() {
+-        return false;
++        return true;
+     }
+ 
+     @Override
+     public boolean isCredentialsNonExpired() {
+-        return false;
++        return true;
+     }
+ 
+     @Override
+     public boolean isEnabled() {
+-        return false;
++        return true;
+     }
++
++    // 개인정보 보호법
+ }
+diff --git a/src/main/java/com/cos/photogramstart/config/auth/PrincipalDetailsService.java b/src/main/java/com/cos/photogramstart/config/auth/PrincipalDetailsService.java
+index 098c35c..7a02724 100644
+--- a/src/main/java/com/cos/photogramstart/config/auth/PrincipalDetailsService.java
++++ b/src/main/java/com/cos/photogramstart/config/auth/PrincipalDetailsService.java
+@@ -3,6 +3,8 @@ package com.cos.photogramstart.config.auth;
+ import com.cos.photogramstart.domain.user.User;
+ import com.cos.photogramstart.domain.user.UserRepository;
+ import lombok.RequiredArgsConstructor;
++import org.slf4j.Logger;
++import org.slf4j.LoggerFactory;
+ import org.springframework.security.core.userdetails.UserDetails;
+ import org.springframework.security.core.userdetails.UserDetailsService;
+ import org.springframework.security.core.userdetails.UsernameNotFoundException;
+@@ -12,6 +14,8 @@ import org.springframework.stereotype.Service;
+ @Service // IoC등록 되면서 UserDetailsService를 덮음.
+ public class PrincipalDetailsService implements UserDetailsService {
+ 
++
++    private final Logger log = LoggerFactory.getLogger(PrincipalDetailsService.class);
+     private final UserRepository userRepository;
+ 
+     // 1. password 는 알아서 체킹하니까 신경 쓸 필요 없다.
+@@ -19,6 +23,8 @@ public class PrincipalDetailsService implements UserDetailsService {
+     @Override
+     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+ 
++        log.info("[loadUserByUsername] loadUserByUsername 수행. username : {}", username);
++
+         User userEntity = userRepository.findByUsername(username);
+ 
+         if (userEntity == null) {
+diff --git a/src/main/java/com/cos/photogramstart/domain/user/User.java b/src/main/java/com/cos/photogramstart/domain/user/User.java
+index a20e7f0..1d15574 100644
+--- a/src/main/java/com/cos/photogramstart/domain/user/User.java
++++ b/src/main/java/com/cos/photogramstart/domain/user/User.java
+@@ -24,13 +24,19 @@ public class User {
+     private String password;
+     @Column(nullable = false)
+     private String name;
++
+     private String website;
++
+     private String bio; // 자기소개
+     @Column(nullable = false)
+     private String email;
++
+     private String phone;
++
+     private String gender;
++
+     private String profileImageUrl;
++
+     private String role; // 권한
+     private LocalDateTime createDate;
+ 
+diff --git a/src/main/java/com/cos/photogramstart/handler/ControllerExceptionHandler.java b/src/main/java/com/cos/photogramstart/handler/ControllerExceptionHandler.java
+index cababdc..eda8d25 100644
+--- a/src/main/java/com/cos/photogramstart/handler/ControllerExceptionHandler.java
++++ b/src/main/java/com/cos/photogramstart/handler/ControllerExceptionHandler.java
+@@ -13,7 +13,7 @@ public class ControllerExceptionHandler {
+     @ExceptionHandler(CustomValidationException.class)    // RuntimeException 이 발생하는 모든 예외를 이 메서드가 가로챔.
+     public String validationException(CustomValidationException e) {
+         // CMRespDto, Script 비교
+-        // 1. 클라이언트에게 응답할 때는 Script 가 좋음
++        // 1. 클라이언트(브라우저)에게 응답할 때는 Script 가 좋음
+         // 2. AJax 통신 - CMRespDto
+         // 4. Android 통신 - CMRespDto
+         return Script.back(e.getErrorMap().toString());
+diff --git a/src/main/java/com/cos/photogramstart/util/Script.java b/src/main/java/com/cos/photogramstart/util/Script.java
+index 1201a32..17dbc78 100644
+--- a/src/main/java/com/cos/photogramstart/util/Script.java
++++ b/src/main/java/com/cos/photogramstart/util/Script.java
+@@ -5,7 +5,7 @@ public class Script {
+     public static String back(String msg) {
+         StringBuffer sb = new StringBuffer();
+         sb.append("<script>");
+-        sb.append("alert("+msg+");");
++        sb.append("alert('"+msg+"');");
+         sb.append("history.back();");
+         sb.append("</script>");
+         return sb.toString();
+diff --git a/src/main/java/com/cos/photogramstart/web/AuthController.java b/src/main/java/com/cos/photogramstart/web/AuthController.java
+index 186654d..fbc017f 100644
+--- a/src/main/java/com/cos/photogramstart/web/AuthController.java
++++ b/src/main/java/com/cos/photogramstart/web/AuthController.java
+@@ -51,6 +51,7 @@ public class AuthController {
+             for (FieldError error:bindingResult.getFieldErrors()){
+                 errorMap.put(error.getField(), error.getDefaultMessage());
+             }
++//            throw new RuntimeException("유효성 검사 실패");
+             throw new CustomValidationException("유효성 검사 실패함", errorMap);
+         }else {
+             log.info(signupDto.toString());
+diff --git a/src/main/java/com/cos/photogramstart/web/ImageController.java b/src/main/java/com/cos/photogramstart/web/ImageController.java
+new file mode 100644
+index 0000000..142eab6
+--- /dev/null
++++ b/src/main/java/com/cos/photogramstart/web/ImageController.java
+@@ -0,0 +1,23 @@
++package com.cos.photogramstart.web;
++
++import org.springframework.stereotype.Controller;
++import org.springframework.web.bind.annotation.GetMapping;
++
++@Controller
++public class ImageController {
++
++    @GetMapping({"/", "/image/story"})
++    public String story() {
++        return "image/story";
++    }
++
++    @GetMapping("image/popular")
++    public String popular() {
++        return "image/popular";
++    }
++
++    @GetMapping("image/upload")
++    public String upload() {
++        return "image/upload";
++    }
++}
+diff --git a/src/main/java/com/cos/photogramstart/web/UserController.java b/src/main/java/com/cos/photogramstart/web/UserController.java
+new file mode 100644
+index 0000000..eab3b25
+--- /dev/null
++++ b/src/main/java/com/cos/photogramstart/web/UserController.java
+@@ -0,0 +1,20 @@
++package com.cos.photogramstart.web;
++
++import org.springframework.stereotype.Controller;
++import org.springframework.web.bind.annotation.GetMapping;
++import org.springframework.web.bind.annotation.PathVariable;
++
++@Controller
++public class UserController {
++
++    @GetMapping("/user/{id}")
++    public String profile(@PathVariable int id) {
++        return "user/profile";
++    }
++
++    @GetMapping("/user/{id}/update")
++    public String update(@PathVariable int id) {
++        return "user/update";
++    }
++
++}
+diff --git a/src/main/java/com/cos/photogramstart/web/dto/CMRespDto.java b/src/main/java/com/cos/photogramstart/web/dto/CMRespDto.java
+index 89da805..2418733 100644
+--- a/src/main/java/com/cos/photogramstart/web/dto/CMRespDto.java
++++ b/src/main/java/com/cos/photogramstart/web/dto/CMRespDto.java
+@@ -8,7 +8,7 @@ import java.util.Map;
+ @Data
+ @NoArgsConstructor
+ @AllArgsConstructor
+-public class CMRespDto <T>{   // generic 사용
++public class CMRespDto <T>{   // generic 사용 (응답 Dto)
+     private int code;  // 1(성공), -1(실패)
+     private String message;
+     private T data;
+diff --git a/src/main/java/com/cos/photogramstart/web/dto/auth/SignupDto.java b/src/main/java/com/cos/photogramstart/web/dto/auth/SignupDto.java
+index f5fecb2..a6becfc 100644
+--- a/src/main/java/com/cos/photogramstart/web/dto/auth/SignupDto.java
++++ b/src/main/java/com/cos/photogramstart/web/dto/auth/SignupDto.java
+@@ -8,7 +8,7 @@ import javax.validation.constraints.Size;
+ @Data
+ public class SignupDto {
+ 
+-    @NotBlank
++    @NotBlank // 무조건 받아야 하는 값
+     @Size(min = 2, max = 20)
+     private String username;
+     @NotBlank
+diff --git a/src/main/webapp/WEB-INF/views/auth/signup.jsp b/src/main/webapp/WEB-INF/views/auth/signup.jsp
+index d309e0b..f8bf554 100644
+--- a/src/main/webapp/WEB-INF/views/auth/signup.jsp
++++ b/src/main/webapp/WEB-INF/views/auth/signup.jsp
+@@ -27,7 +27,7 @@
+                          
+                          <!--회원가입 인풋-->
+                         <form class="login__input" action="/auth/signup" method="post">
+-                            <input type="text" name="username" placeholder="유저네임" required="required" />
++                            <input type="text" name="username" placeholder="유저네임" required="required" maxlength="30" />
+                             <input type="password" name="password" placeholder="패스워드" required="required" />
+                             <input type="email" name="email" placeholder="이메일" required="required" />
+                             <input type="text" name="name" placeholder="이름" required="required" />
+diff --git a/src/main/webapp/WEB-INF/views/layout/header.jsp b/src/main/webapp/WEB-INF/views/layout/header.jsp
+index 70641da..f901c65 100644
+--- a/src/main/webapp/WEB-INF/views/layout/header.jsp
++++ b/src/main/webapp/WEB-INF/views/layout/header.jsp
+@@ -32,18 +32,18 @@
+ 	
+ 	<header class="header">
+ 		<div class="container">
+-			<a href="/image/story" class="logo">
++			<a href="/" class="logo">
+ 				<img src="/images/logo.jpg" alt="">
+ 			</a>
+ 			<nav class="navi">
+ 				<ul class="navi-list">
+-					<li class="navi-item"><a href="/image/story">
++					<li class="navi-item"><a href="/">
+ 							<i class="fas fa-home"></i>
+ 						</a></li>
+ 					<li class="navi-item"><a href="/image/popular">
+ 							<i class="far fa-compass"></i>
+ 						</a></li>
+-					<li class="navi-item"><a href="/user/profile">
++					<li class="navi-item"><a href="/user/1">
+ 							<i class="far fa-user"></i>
+ 						</a></li>
+ 				</ul>
+diff --git a/src/main/webapp/WEB-INF/views/user/profile.jsp b/src/main/webapp/WEB-INF/views/user/profile.jsp
+index 0735319..333ff54 100644
+--- a/src/main/webapp/WEB-INF/views/user/profile.jsp
++++ b/src/main/webapp/WEB-INF/views/user/profile.jsp
+@@ -101,7 +101,7 @@
+ <!--로그아웃, 회원정보변경 모달-->
+ <div class="modal-info" onclick="modalInfo()">
+ 	<div class="modal">
+-		<button onclick="location.href='/user/update'">회원정보 변경</button>
++		<button onclick="location.href='/user/1/update'">회원정보 변경</button>
+ 		<button onclick="location.href='/logout'">로그아웃</button>
+ 		<button onclick="closePopup('.modal-info')">취소</button>
+ 	</div>
+-- 
+2.39.2 (Apple Git-143)
+
