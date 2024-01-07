@@ -13,7 +13,7 @@ public class ControllerExceptionHandler {
     @ExceptionHandler(CustomValidationException.class)    // RuntimeException 이 발생하는 모든 예외를 이 메서드가 가로챔.
     public String validationException(CustomValidationException e) {
         // CMRespDto, Script 비교
-        // 1. 클라이언트에게 응답할 때는 Script 가 좋음
+        // 1. 클라이언트(브라우저)에게 응답할 때는 Script 가 좋음
         // 2. AJax 통신 - CMRespDto
         // 4. Android 통신 - CMRespDto
         return Script.back(e.getErrorMap().toString());

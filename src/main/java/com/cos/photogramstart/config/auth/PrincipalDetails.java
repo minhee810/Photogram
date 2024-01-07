@@ -6,50 +6,61 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 @Data
 public class PrincipalDetails implements UserDetails {
 
     private static final long serialVersionUID = 1L;
+
+    // 추가
     private User user;
 
-    public PrincipalDetails(User user){
+    public PrincipalDetails(User user) {
         this.user = user;
     }
 
+
+    // 권한 : 한 개가 아닐 수 있음 (3개 이상의 권한)
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null;
+        Collection<GrantedAuthority> collector = new ArrayList<>();
+        collector.add(() -> {return user.getRole();});
+        return collector;
     }
 
     @Override
     public String getPassword() {
-        return null;
+        return user.getPassword();
     }
 
     @Override
     public String getUsername() {
-        return null;
+        return user.getUsername();
     }
 
+
+    // 계정 만료 되었는지 확인하는 메서드
     @Override
     public boolean isAccountNonExpired() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean isEnabled() {
-        return false;
+        return true;
     }
+
+    // 개인정보 보호법
 }
