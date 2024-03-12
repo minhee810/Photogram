@@ -2,7 +2,6 @@ package com.cos.photogramstart.config.auth;
 
 import com.cos.photogramstart.domain.user.User;
 import lombok.Data;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 

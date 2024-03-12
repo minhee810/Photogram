@@ -11,7 +11,6 @@ public class SignupDto {
     @NotBlank // 무조건 받아야 하는 값
     @Size(min = 2, max = 20)
     private String username;
-    @NotBlank
     private String password;
     @NotBlank
     private String email;
@@ -19,7 +18,7 @@ public class SignupDto {
     private String name;
 
     public User toEntity() {
-        return User.builder()
+        return User.signupBuilder()
                 .username(username)
                 .password(password)
                 .email(email)

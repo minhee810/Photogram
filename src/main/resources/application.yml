@@ -25,6 +25,9 @@ spring:
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
     show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
       
   servlet:
     multipart:
@@ -35,6 +38,10 @@ spring:
     user:
       name: test
       password: 1234   
+
+  output:
+    ansi:
+      enabled: always
 
 #file:
 #  path: C:/workspace/springbootwork/upload/

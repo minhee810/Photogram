@@ -11,7 +11,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
-@Service // IoC등록 되면서 UserDetailsService를 덮음.
+@Service // IoC등록 되면서 UserDetailsService 를 덮음.
 public class PrincipalDetailsService implements UserDetailsService {
 
     private final Logger log = LoggerFactory.getLogger(PrincipalDetailsService.class);
