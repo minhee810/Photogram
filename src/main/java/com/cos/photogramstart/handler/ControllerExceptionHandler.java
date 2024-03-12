@@ -1,7 +1,11 @@
 package com.cos.photogramstart.handler;
 
+import com.cos.photogramstart.handler.ex.CustomValidationApiException;
 import com.cos.photogramstart.handler.ex.CustomValidationException;
 import com.cos.photogramstart.util.Script;
+import com.cos.photogramstart.web.dto.CMRespDto;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
@@ -17,5 +21,10 @@ public class ControllerExceptionHandler {
         // 2. AJax 통신 - CMRespDto
         // 4. Android 통신 - CMRespDto
         return Script.back(e.getErrorMap().toString());
+    }
+
+    @ExceptionHandler(CustomValidationApiException.class)    // RuntimeException 이 발생하는 모든 예외를 이 메서드가 가로챔.
+    public ResponseEntity<?> validationApiException(CustomValidationApiException e) {
+        return new ResponseEntity<>(new CMRespDto<>(-1, e.getMessage(), e.getErrorMap()), HttpStatus.BAD_REQUEST); // ResponseEntity 반환하면서 httpStatus 추가
     }
 }

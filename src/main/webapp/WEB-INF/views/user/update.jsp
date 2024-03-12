@@ -26,7 +26,7 @@
 				<div class="content-item__02">
 					<div class="item__title">이름</div>
 					<div class="item__input">
-						<input type="text" name="name" placeholder="이름" required="required"
+						<input type="text" name="name" placeholder="이름"  required="required"
 							value="${principal.user.name}" />
 					</div>
 				</div>
