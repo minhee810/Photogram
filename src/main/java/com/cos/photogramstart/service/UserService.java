@@ -2,12 +2,15 @@ package com.cos.photogramstart.service;
 
 import com.cos.photogramstart.domain.user.User;
 import com.cos.photogramstart.domain.user.UserRepository;
+import com.cos.photogramstart.handler.ex.CustomValidationApiException;
 import com.cos.photogramstart.web.dto.user.UserUpdateDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.function.Supplier;
 
 @Service
 @RequiredArgsConstructor
@@ -22,7 +25,8 @@ public class UserService {
     public User update(int id, UserUpdateDto userUpdateDto) {
         // 1. 영속화 - 사용자 찾기 또는 예외 발생
         User userEntity = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("해당 사용자를 찾을 수 없습니다.")); // 사용자를 못찾았을 경우 예외 처리
+                .orElseThrow(() -> new CustomValidationApiException("찾을 수 없는 id 입니다."));
+
 
         // 2. 정보 업데이트
         userEntity.setName(userUpdateDto.getName());

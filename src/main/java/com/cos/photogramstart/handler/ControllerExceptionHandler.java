@@ -27,4 +27,6 @@ public class ControllerExceptionHandler {
     public ResponseEntity<?> validationApiException(CustomValidationApiException e) {
         return new ResponseEntity<>(new CMRespDto<>(-1, e.getMessage(), e.getErrorMap()), HttpStatus.BAD_REQUEST); // ResponseEntity 반환하면서 httpStatus 추가
     }
+
+
 }

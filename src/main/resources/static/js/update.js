@@ -18,6 +18,10 @@ function update(userId, event) {
         location.href=`/user/${userId}`;
 
     }).fail(errors=>{
+    if(errors.data == null){
+        alert(errors.responseJSON.message);
+    }else{
         alert(JSON.stringify(errors.responseJSON.data));
+    }
     });
 }
