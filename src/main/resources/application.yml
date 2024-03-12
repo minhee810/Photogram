@@ -43,5 +43,5 @@ spring:
     ansi:
       enabled: always
 
-#file:
-#  path: C:/workspace/springbootwork/upload/
+file:
+  path: /Users/gangminhui/workspace/work_springboot/upload/
