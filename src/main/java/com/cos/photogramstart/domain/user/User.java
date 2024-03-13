@@ -3,10 +3,13 @@ package com.cos.photogramstart.domain.user;
 // JPA - Java Persistence Api (자바로 데이터를 영구적으로 저장(DB)할 수 있는 api를 제공)
 
 
+import com.cos.photogramstart.domain.image.Image;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 //@Builder(toBuilder = true)
 @AllArgsConstructor
@@ -26,26 +29,32 @@ public class User {
     @Column(nullable = false)
     private String name;
 
-    @Column
     private String website;
 
-    @Column
+
     private String bio; // 자기소개
     @Column(nullable = false)
     private String email;
 
-    @Column
+
     private String phone;
 
-    @Column
+
     private String gender;
 
-    @Column
     private String profileImageUrl;
 
-    @Column
     private String role; // 권한
-    @Column
+
+    // 연관관계의 주인이 아니므로 테이블에 컬럼 생성하지 않도록 설정
+    // User 를 Select 할 때 해당 User id 로 등록된 image 모두 들고오도록
+    // Lazy = User 를 Select 할 때 해당 User id 로 등록된 image 가져오지 않도록 - 대신 getImages()함수의 image 들이 호출될 때 가져옴,
+    // Eager = User 를 Select 할 때 해당 User id로 등록된 image 들을 전부 Join 해서 가져오도록
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    @JsonIgnoreProperties({"user"}) // image 내부에 있는 user 를 무시하고 파싱하도록 설정
+    private List<Image> images;  // 양방향 매핑 컬럼
+
+
     private LocalDateTime createDate;
 
     @PrePersist // db에 insert 되기 직전에 실행

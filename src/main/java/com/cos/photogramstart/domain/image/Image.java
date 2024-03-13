@@ -45,4 +45,15 @@ public class Image {
         this.postImageUrl = postImageUrl;
         this.user = user;
     }
+
+    // 오브젝트를 콘솔에 출력할 때 문제가 될 수 있어서 User 부분을 삭제한 toString() 재정의함.
+//    @Override
+//    public String toString() {
+//        return "Image{" +
+//                "id=" + id +
+//                ", caption='" + caption + '\'' +
+//                ", postImageUrl='" + postImageUrl + '\'' +
+//                ", createDate=" + createDate +
+//                '}';
+//    }
 }

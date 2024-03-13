@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -26,12 +27,13 @@ public class ImageService {
     @Value("${file.path}")
     private String uploadFolder;
 
+    @Transactional
     public void imageUpload(ImageUploadDto imageUploadDto, PrincipalDetails principalDetails) {
         UUID uuid = UUID.randomUUID(); // uuid
         String imageFileName = uuid + "_" + imageUploadDto.getFile().getOriginalFilename(); // ex) 1.jpg
         System.out.println("이미지 파일 이름 : " + imageFileName);
 
-        Path imageFilePath = Paths.get(uploadFolder+imageFileName);
+        Path imageFilePath = Paths.get(uploadFolder + imageFileName);
 
         // IO, 통신 -> 예외 발생할 수 있다. 런타임 에러 예외처리
         try {
@@ -44,7 +46,10 @@ public class ImageService {
         Image image = imageUploadDto.toEntity(imageFileName, principalDetails.getUser());
         Image imageEntity = imageRepository.save(image);
 
-        log.info("imageEntity = {}" ,imageEntity);
+//        log.info("imageEntity = {}" ,imageEntity);
+
+//        System.out.println("이미지 엔티티 조회 : " + imageEntity); // 오류가 발생함.
+
 
     }
 }
