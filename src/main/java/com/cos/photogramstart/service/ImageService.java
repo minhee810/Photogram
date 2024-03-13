@@ -1,9 +1,11 @@
 package com.cos.photogramstart.service;
 
 import com.cos.photogramstart.config.auth.PrincipalDetails;
+import com.cos.photogramstart.domain.image.Image;
 import com.cos.photogramstart.domain.image.ImageRepository;
 import com.cos.photogramstart.web.dto.image.ImageUploadDto;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +17,7 @@ import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service
+@Slf4j
 public class ImageService {
 
     private final ImageRepository imageRepository;
@@ -37,5 +40,11 @@ public class ImageService {
             e.printStackTrace();
             throw new RuntimeException(e);
         }
+
+        Image image = imageUploadDto.toEntity(imageFileName, principalDetails.getUser());
+        Image imageEntity = imageRepository.save(image);
+
+        log.info("imageEntity = {}" ,imageEntity);
+
     }
 }

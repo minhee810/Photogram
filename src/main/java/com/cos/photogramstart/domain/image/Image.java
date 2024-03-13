@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
-@Builder
+//@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
@@ -37,5 +37,12 @@ public class Image {
     @PrePersist // db에 insert 되기 직전에 실행
     public void createDate() {
         this.createDate = LocalDateTime.now();
+    }
+
+    @Builder(builderMethodName = "imageBuilder")
+    public Image(String caption, String postImageUrl, User user) {
+        this.caption = caption;
+        this.postImageUrl = postImageUrl;
+        this.user = user;
     }
 }
