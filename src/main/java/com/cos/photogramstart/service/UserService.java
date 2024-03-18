@@ -3,15 +3,24 @@ package com.cos.photogramstart.service;
 import com.cos.photogramstart.domain.subscribe.SubscribeRepository;
 import com.cos.photogramstart.domain.user.User;
 import com.cos.photogramstart.domain.user.UserRepository;
+import com.cos.photogramstart.handler.ex.CustomApiException;
 import com.cos.photogramstart.handler.ex.CustomException;
 import com.cos.photogramstart.handler.ex.CustomValidationApiException;
 import com.cos.photogramstart.web.dto.user.UserProfileDto;
 import com.cos.photogramstart.web.dto.user.UserUpdateDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -23,6 +32,33 @@ public class UserService {
     private final SubscribeRepository subscribeRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
+    @Value("${file.path}")
+    private String uploadFolder;
+
+    @Transactional
+    public User profileImageUrlUpdate(int principalId, MultipartFile profileImageFile) {
+
+        UUID uuid = UUID.randomUUID(); // uuid
+        String imageFileName = uuid + "_" + profileImageFile.getOriginalFilename(); // ex) 1.jpg
+        System.out.println("이미지 파일 이름 : " + imageFileName);
+
+        Path imageFilePath = Paths.get(uploadFolder + imageFileName);
+
+        // IO, 통신 -> 예외 발생할 수 있다. 런타임 에러 예외처리
+        try {
+            Files.write(imageFilePath, profileImageFile.getBytes());
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+
+        User userEntity = userRepository.findById(principalId).orElseThrow(() -> {
+            throw new CustomApiException("사용자를 찾을 수 없습니다.");
+        });
+
+        userEntity.setProfileImageUrl(imageFileName);
+        return userEntity; // 더티체킹으로 데이터 업데이트
+    }
 
     /**
      * @param pageUserId 해당 프로필 페이지 사용자 아이디
@@ -73,5 +109,6 @@ public class UserService {
 
         return userEntity; // 예시로 엔티티 반환. 실제로는 DTO 사용 권장
     }
+
 
 }
