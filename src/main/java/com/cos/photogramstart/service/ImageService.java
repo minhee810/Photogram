@@ -7,6 +7,8 @@ import com.cos.photogramstart.web.dto.image.ImageUploadDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,6 +16,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -22,6 +25,27 @@ import java.util.UUID;
 public class ImageService {
 
     private final ImageRepository imageRepository;
+
+    @Transactional(readOnly = true) // 영속성 컨텍스트에서 변경감지를 해서, 더티체킹, flush(반영), 읽기 전용이기 때문에 데이터베이스 반영을 하지 않아 성능이 좋아짐. 하지만 트랜젝션을 걸어서 세션을 컨트롤러 단까지 끌고 오는 것은 매우 중요함,
+    public Page<Image> imageStory(int principalId, Pageable pageable) {
+
+        Page<Image> images = imageRepository.mStory(principalId, pageable);
+
+        // 2(cos) 로 로그인한 상태라면
+        // images 에 좋아요 상태 담아가기
+        images.forEach((image -> {
+
+            image.setLikeCount(image.getLikes().size());
+
+            image.getLikes().forEach((like -> {
+                if (like.getUser().getId() == principalId) {
+                    image.setLikeState(true);
+                }
+            }));
+        }));
+
+        return images;
+    }
 
     // yml 값 가져오기
     @Value("${file.path}")
