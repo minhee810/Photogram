@@ -61,6 +61,8 @@ public class AuthController {
 
             User userEntity = authService.join(user);
             log.info(userEntity.toString());
+
+            // 로그를 남기는 후처리할 수 있음.
             return "auth/signin"; // 회원가입 성공 시 로그인 페이지로 이동
         }
 
