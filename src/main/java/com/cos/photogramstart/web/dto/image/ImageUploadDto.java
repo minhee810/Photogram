@@ -13,10 +13,7 @@ public class ImageUploadDto {
     private String caption;
 
     public Image toEntity(String postImageUrl, User user) {
-        return Image.imageBuilder()
-                .caption(caption)
-                .postImageUrl(postImageUrl)
-                .user(user).build();
+        return Image.imageBuilder().caption(caption).postImageUrl(postImageUrl).user(user).build();
     }
 
 

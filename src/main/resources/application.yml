@@ -5,30 +5,27 @@ server:
     encoding:
       charset: utf-8
       enabled: true
-    
 spring:
   mvc:
     view:
       prefix: /WEB-INF/views/
       suffix: .jsp
-      
   datasource:
     driver-class-name: org.mariadb.jdbc.Driver
-    url: jdbc:mariadb://localhost:3306/photogram?serverTimezone=Asia/Seoul&allowPublicKeyRetrieval=true&useSSL=false
+    url: >-
+      jdbc:mariadb://localhost:3306/photogram?serverTimezone=Asia/Seoul&allowPublicKeyRetrieval=true&useSSL=false
     username: cos
     password: cos1234
-    
   jpa:
-    open-in-view: true  # true
+    open-in-view: true
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
     show-sql: true
     properties:
       hibernate:
         format_sql: true
-      
   servlet:
     multipart:
       enabled: true
@@ -37,7 +34,17 @@ spring:
   security:
     user:
       name: test
-      password: 1234   
+      password: 1234
+
+    oauth2:
+      client:
+        registration:
+          facebook:
+            client-id: 790089829842127
+            client-secret: be637c1cb9cdc4c549ad58dfd8dae254
+            scope:
+            - public_profile
+            - email
 
   output:
     ansi:

@@ -22,7 +22,7 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) // 번호증가 전략이 데이터베이스를 따라간다.
     private int id;  // 큰 사용자를 둘 것이 아니기 때문에 long 이 아닌 int 로 설정.
-    @Column(length = 20, unique = true)
+    @Column(length = 100, unique = true) // oauth2 로그인을 위해 컬럼을 늘림
     private String username;
     @Column(nullable = false)
     private String password;
@@ -57,15 +57,11 @@ public class User {
 
     private LocalDateTime createDate;
 
-    @PrePersist // db에 insert 되기 직전에 실행
-    public void createDate() {
-        this.createDate = LocalDateTime.now();
-    }
-
     @Builder(builderMethodName = "signupBuilder")
-    public User(String username, String password, String name, String email) {
+    public User(String username, String password, String name, String email, String role) {
         this.username = username;
         this.password = password;
+        this.role = role;
         this.name = name;
         this.email = email;
     }
@@ -80,22 +76,13 @@ public class User {
         this.gender = gender;
     }
 
+    @PrePersist // db에 insert 되기 직전에 실행
+    public void createDate() {
+        this.createDate = LocalDateTime.now();
+    }
 
     @Override
     public String toString() {
-        return "User{" +
-                "id=" + id +
-                ", username='" + username + '\'' +
-                ", password='" + password + '\'' +
-                ", name='" + name + '\'' +
-                ", website='" + website + '\'' +
-                ", bio='" + bio + '\'' +
-                ", email='" + email + '\'' +
-                ", phone='" + phone + '\'' +
-                ", gender='" + gender + '\'' +
-                ", profileImageUrl='" + profileImageUrl + '\'' +
-                ", role='" + role + '\'' +
-                ", createDate=" + createDate +
-                '}';
+        return "User{" + "id=" + id + ", username='" + username + '\'' + ", password='" + password + '\'' + ", name='" + name + '\'' + ", website='" + website + '\'' + ", bio='" + bio + '\'' + ", email='" + email + '\'' + ", phone='" + phone + '\'' + ", gender='" + gender + '\'' + ", profileImageUrl='" + profileImageUrl + '\'' + ", role='" + role + '\'' + ", createDate=" + createDate + '}';
     }
 }

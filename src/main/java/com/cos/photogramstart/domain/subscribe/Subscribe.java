@@ -14,14 +14,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Data
 @Entity
-@Table(
-        uniqueConstraints = {
-                @UniqueConstraint(
-                        name = "subscribe_uk",
-                        columnNames = {"fromUserId", "toUserId"}  // 실제 db 컬럼명
-                )
-        }
-)
+@Table(uniqueConstraints = {@UniqueConstraint(name = "subscribe_uk", columnNames = {"fromUserId", "toUserId"}  // 실제 db 컬럼명
+)})
 public class Subscribe {
 
     @Id

@@ -19,8 +19,7 @@ public class WebMvcConfig implements WebMvcConfigurer { // web 설정 파일
         registry.addResourceHandler("/upload/**")
                 .addResourceLocations("file:///" + uploadFolder) // jsp 페이지에서 /upload/** 이런 주소 패턴이 나오면 작동
                 .setCachePeriod(60 * 10 * 6) // 1시간
-                .resourceChain(true)
-                .addResolver(new PathResourceResolver());
+                .resourceChain(true).addResolver(new PathResourceResolver());
 
     }
 }

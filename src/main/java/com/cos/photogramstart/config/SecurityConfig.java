@@ -1,33 +1,40 @@
 package com.cos.photogramstart.config;
 
+import com.cos.photogramstart.config.oauth.OAuth2DetailsService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
 
-@EnableWebSecurity // 해당 파일로 security 활성화
-@Configuration // IoC -> 빈으로 등록 메모리에 뜨게함 -> 기존 시큐리티가 가로채고 있음
-public class SecurityConfig extends WebSecurityConfigurerAdapter {  // 상속
+@RequiredArgsConstructor
+@Configuration // IoC
+public class SecurityConfig {
 
+    private final OAuth2DetailsService oAuth2DetailsService;
 
-    @Bean // SecurityConfig 가 IoC 에 등록 될 때 같이 빈으로 등록되어 애플리케이션 실행 시 메모리에 떠 있게 됨.
-    public BCryptPasswordEncoder encoder() {
+    @Bean
+    BCryptPasswordEncoder encode() {
         return new BCryptPasswordEncoder();
     }
 
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
-//        super.configure(http); // -> 지우면 기존 시큐리티가 갖고 있는 기능이 다 비활성화 됨.
-        http.csrf().disable(); // 토큰을 갖고 있는지 아닌지 구분하지 않겠다.
+    @Bean
+    SecurityFilterChain configure(HttpSecurity http) throws Exception {
+        http.csrf().disable();
         http.authorizeRequests()
                 .antMatchers("/", "/user/**", "/image/**", "/subscribe/**", "/comment/**", "/api/**").authenticated()
                 .anyRequest().permitAll()
                 .and()
                 .formLogin()
                 .loginPage("/auth/signin") // GET
-                .loginProcessingUrl("/auth/signin")// post -> 스프링 시큐리티가 로그인 프로세스 진행
-                .defaultSuccessUrl("/");
+                .loginProcessingUrl("/auth/signin") // POST -> 스프링 시큐리티가 로그인 프로세스 진행
+                .defaultSuccessUrl("/")
+                .and()
+                .oauth2Login() // form로그인도 하는데, oauth2로그인도 할꺼야!!
+                .userInfoEndpoint() // oauth2로그인을 하면 최종응답을 회원정보를 바로 받을 수 있다.
+                .userService(oAuth2DetailsService);
+        return http.build();
     }
+
 }

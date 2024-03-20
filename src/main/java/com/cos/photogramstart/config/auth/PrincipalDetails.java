@@ -4,22 +4,30 @@ import com.cos.photogramstart.domain.user.User;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Map;
 
 /**
  * 사용자 세부 정보 클래스 UserDetails 구현
  */
 @Data
-public class PrincipalDetails implements UserDetails {
+public class PrincipalDetails implements UserDetails, OAuth2User {
 
     private static final long serialVersionUID = 1L;
 
     // 추가
     private User user;
 
+    private Map<String, Object> attributes;
+
     public PrincipalDetails(User user) {
+        this.user = user;
+    }
+
+    public PrincipalDetails(User user, Map<String, Object> attributes) {
         this.user = user;
     }
 
@@ -28,7 +36,9 @@ public class PrincipalDetails implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         Collection<GrantedAuthority> collector = new ArrayList<>();
-        collector.add(() -> {return user.getRole();});
+        collector.add(() -> {
+            return user.getRole();
+        });
         return collector;
     }
 
@@ -62,6 +72,18 @@ public class PrincipalDetails implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    // oauth
+    @Override
+    public Map<String, Object> getAttributes() {
+        return attributes; // {id : 123423413, name : 강민희, email: alsgml1341@gmail.com }
+    }
+
+    // oauth
+    @Override
+    public String getName() {
+        return (String) attributes.get("name");
     }
 
     // 개인정보 보호법

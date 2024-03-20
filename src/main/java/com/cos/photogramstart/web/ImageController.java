@@ -12,7 +12,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 
-import javax.validation.Valid;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -20,6 +19,7 @@ import java.util.List;
 public class ImageController {
 
     private final ImageService imageService;
+
     @GetMapping({"/", "/image/story"})
     public String story() {
         return "image/story";

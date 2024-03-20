@@ -53,16 +53,16 @@ public class Image {
     @Transient
     private int likeCount;
 
-    @PrePersist // db에 insert 되기 직전에 실행
-    public void createDate() {
-        this.createDate = LocalDateTime.now();
-    }
-
     @Builder(builderMethodName = "imageBuilder")
     public Image(String caption, String postImageUrl, User user) {
         this.caption = caption;
         this.postImageUrl = postImageUrl;
         this.user = user;
+    }
+
+    @PrePersist // db에 insert 되기 직전에 실행
+    public void createDate() {
+        this.createDate = LocalDateTime.now();
     }
 
     // 오브젝트를 콘솔에 출력할 때 문제가 될 수 있어서 User 부분을 삭제한 toString() 재정의함.

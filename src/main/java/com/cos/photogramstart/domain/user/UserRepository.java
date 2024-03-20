@@ -6,6 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface UserRepository extends JpaRepository<User, Integer> {
     // JPA Query method
     // findBy -> 고정 키워드
-    User findByUsername (String username);
+    User findByUsername(String username);
 
 }

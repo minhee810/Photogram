@@ -1,11 +1,8 @@
 package com.cos.photogramstart.domain.subscribe;
 
-import com.cos.photogramstart.web.dto.subscribe.SubscribeDto;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-
-import java.util.List;
 
 public interface SubscribeRepository extends JpaRepository<Subscribe, Integer> {
 

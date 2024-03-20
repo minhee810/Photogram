@@ -5,7 +5,6 @@ import com.cos.photogramstart.domain.image.Image;
 import com.cos.photogramstart.service.ImageService;
 import com.cos.photogramstart.service.LikesService;
 import com.cos.photogramstart.web.dto.CMRespDto;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

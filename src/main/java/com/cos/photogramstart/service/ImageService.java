@@ -25,13 +25,17 @@ import java.util.UUID;
 public class ImageService {
 
     private final ImageRepository imageRepository;
+    // yml 값 가져오기
+    @Value("${file.path}")
+    private String uploadFolder;
 
     @Transactional(readOnly = true)
     public List<Image> popularImage() {
         return imageRepository.mPopularImage();
     }
 
-    @Transactional(readOnly = true) // 영속성 컨텍스트에서 변경감지를 해서, 더티체킹, flush(반영), 읽기 전용이기 때문에 데이터베이스 반영을 하지 않아 성능이 좋아짐. 하지만 트랜젝션을 걸어서 세션을 컨트롤러 단까지 끌고 오는 것은 매우 중요함,
+    @Transactional(readOnly = true)
+    // 영속성 컨텍스트에서 변경감지를 해서, 더티체킹, flush(반영), 읽기 전용이기 때문에 데이터베이스 반영을 하지 않아 성능이 좋아짐. 하지만 트랜젝션을 걸어서 세션을 컨트롤러 단까지 끌고 오는 것은 매우 중요함,
     public Page<Image> imageStory(int principalId, Pageable pageable) {
 
         Page<Image> images = imageRepository.mStory(principalId, pageable);
@@ -51,10 +55,6 @@ public class ImageService {
 
         return images;
     }
-
-    // yml 값 가져오기
-    @Value("${file.path}")
-    private String uploadFolder;
 
     @Transactional
     public void imageUpload(ImageUploadDto imageUploadDto, PrincipalDetails principalDetails) {

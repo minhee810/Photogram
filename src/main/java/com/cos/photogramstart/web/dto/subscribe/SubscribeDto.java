@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class SubscribeDto{
+public class SubscribeDto {
 
     private int id;
     private String username;
